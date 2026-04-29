@@ -11,20 +11,21 @@ struct Item {
 	char flag;
 };
 
-struct Item* getMax(struct Item* items, int count){
-	struct Item* max = NULL;
+struct Item* getLeft(struct Item* items, int count){
+	struct Item* min = NULL;
 	for(int i = 0; i < count; ++i){
 		struct Item* cur = &items[i];
 
-		char isLess = (max == NULL) ||
-			(cur->ratio > max->ratio) ||
-			(cur->ratio == max->ratio && (strcmp(cur->name, max->name) < 0));
+		char isLess = (min == NULL) ||
+			(cur->bobot < min->bobot) ||
+			(cur->bobot == min->bobot && cur->nilai > min->nilai) ||
+			(cur->bobot == min->bobot && cur->nilai == min->nilai && (strcmp(cur->name, min->name) > 0));
 
-		if(cur->flag && isLess) max = cur;
+		if(cur->flag && isLess) min = cur;
 	}
 
-	max->flag = 0;
-	return max;
+	min->flag = 0;
+	return min;
 }
 
 int main(){
@@ -39,19 +40,36 @@ int main(){
 		item->ratio = (double) item->nilai / (double) item->bobot;
 	}
 
-	struct Item* taken[N];
-	int n = 0, w = 0, v = 0;
-
+	struct Item* sorted[N];
 	for(int i = 0; i < N; ++i){
-		struct Item* max = getMax(items, N);
-		if(w + max->bobot <= W) {
-			w += max->bobot;
-			v += max->nilai;
-			taken[n++] = max;
-		}
+		struct Item* min = getLeft(items, N);
+		sorted[i] = min;
 	}
 
-	printf("MAX_VALUE %d\n", v);
-	for(int i = 0; i < n; ++i)
-		printf("ITEM %s\n", taken[i]->name);
+	int MAX[W + 1];
+	MAX[0] = 0;
+
+	int itemIndex = 0;
+	int maxBobot = 1;
+	while(1){
+		if(itemIndex == N || maxBobot == W + 1) break;
+
+		int currentBobot = sorted[itemIndex]->bobot;
+
+		int max = MAX[maxBobot - 1];
+		if(currentBobot <= maxBobot){
+			int new = MAX[maxBobot - currentBobot] + sorted[itemIndex]->nilai;
+
+			// We take one
+			if(new > max) {
+				itemIndex += 1;
+				max = new;
+			}
+		}
+
+		MAX[maxBobot++] = max;
+	}
+
+	for(int i = 0; i < (W + 1); ++i)
+		printf("%d ", MAX[i]);
 }

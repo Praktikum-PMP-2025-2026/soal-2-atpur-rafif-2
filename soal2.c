@@ -51,6 +51,8 @@ int main(){
 	int maxBobot = 1;
 	while(maxBobot < (W + 1)){
 		int max = MAX[maxBobot - 1]; // Don't take anything
+		for(int j = 0; j < N; ++j)
+			TAKEN[maxBobot][j] = TAKEN[maxBobot - 1][j];
 		
 		// Try to take one, that hasn't been taken
 		for(int i = 0; i < N; ++i){
@@ -76,6 +78,16 @@ int main(){
 
 		MAX[maxBobot++] = max;
 	}
+
+	for(int i = 0; i < (W + 1); ++i){
+		printf("%d: ", i);
+		for(int j = 0; j < N; ++j){
+			printf("%d ", TAKEN[i][j]);
+		}
+		printf("\n");
+	}
+
+
 
 	for(int i = 0; i < (W + 1); ++i)
 		printf("%d ", MAX[i]);

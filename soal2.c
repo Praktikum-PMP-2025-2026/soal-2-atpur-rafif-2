@@ -70,7 +70,7 @@ int main(){
 			// Try to take it
 			int new = MAX[prevBobot] + sorted[i]->nilai;
 
-			if(new > max) {
+			if(new >= max) {
 				max = new;
 				for(int j = 0; j < N; ++j)
 					TAKEN[maxBobot][j] = TAKEN[prevBobot][j];

@@ -40,30 +40,37 @@ int main(){
 		item->ratio = (double) item->nilai / (double) item->bobot;
 	}
 
-	struct Item* sorted[N];
-	for(int i = 0; i < N; ++i){
-		struct Item* min = getLeft(items, N);
-		sorted[i] = min;
-	}
-
 	int MAX[W + 1];
+	char TAKEN[W + 1][N];
 	MAX[0] = 0;
 
-	int itemIndex = 0;
+	for(int i = 0; i < (W + 1); ++i)
+		for(int j = 0; j < N; ++j)
+			TAKEN[i][j] = 0;
+
 	int maxBobot = 1;
-	while(1){
-		if(itemIndex == N || maxBobot == W + 1) break;
+	while(maxBobot < (W + 1)){
+		int max = MAX[maxBobot - 1]; // Don't take anything
+		
+		// Try to take one, that hasn't been taken
+		for(int i = 0; i < N; ++i){
+			int bobot = items[i].bobot;
+			int prevBobot = maxBobot - bobot;
 
-		int currentBobot = sorted[itemIndex]->bobot;
+			// Skip if can't take it
+			if(prevBobot < 0) continue;
 
-		int max = MAX[maxBobot - 1];
-		if(currentBobot <= maxBobot){
-			int new = MAX[maxBobot - currentBobot] + sorted[itemIndex]->nilai;
+			// Skip if already taken previously
+			if(TAKEN[prevBobot][i]) continue;
 
-			// We take one
+			// Try to take it
+			int new = MAX[prevBobot] + items[i].nilai;
+
 			if(new > max) {
-				itemIndex += 1;
 				max = new;
+				for(int j = 0; j < N; ++j)
+					TAKEN[maxBobot][j] = TAKEN[prevBobot][j];
+				TAKEN[maxBobot][i] = 1;
 			}
 		}
 

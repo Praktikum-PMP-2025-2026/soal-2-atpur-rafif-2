@@ -7,25 +7,22 @@ struct Item {
 	char name[MAX_NAME];
 	int bobot;
 	int nilai;
-	double ratio;
 	char flag;
 };
 
 struct Item* getLeft(struct Item* items, int count){
-	struct Item* min = NULL;
+	struct Item* left = NULL;
 	for(int i = 0; i < count; ++i){
 		struct Item* cur = &items[i];
 
-		char isLess = (min == NULL) ||
-			(cur->bobot < min->bobot) ||
-			(cur->bobot == min->bobot && cur->nilai > min->nilai) ||
-			(cur->bobot == min->bobot && cur->nilai == min->nilai && (strcmp(cur->name, min->name) > 0));
+		char isLess = (left == NULL) ||
+			(strcmp(cur->name, left->name) > 0);
 
-		if(cur->flag && isLess) min = cur;
+		if(cur->flag && isLess) left = cur;
 	}
 
-	min->flag = 0;
-	return min;
+	left->flag = 0;
+	return left;
 }
 
 int main(){
@@ -37,7 +34,12 @@ int main(){
 		struct Item* item = &items[i];
 		scanf("%s %d %d", (char*) &item->name, &item->bobot, &item->nilai);
 		item->flag = 1;
-		item->ratio = (double) item->nilai / (double) item->bobot;
+	}
+
+	struct Item* sorted[N];
+	for(int i = 0; i < N; ++i){
+		struct Item* min = getLeft(items, N);
+		sorted[i] = min;
 	}
 
 	int MAX[W + 1];
@@ -56,7 +58,7 @@ int main(){
 		
 		// Try to take one, that hasn't been taken
 		for(int i = 0; i < N; ++i){
-			int bobot = items[i].bobot;
+			int bobot = sorted[i]->bobot;
 			int prevBobot = maxBobot - bobot;
 
 			// Skip if can't take it
@@ -66,7 +68,7 @@ int main(){
 			if(TAKEN[prevBobot][i]) continue;
 
 			// Try to take it
-			int new = MAX[prevBobot] + items[i].nilai;
+			int new = MAX[prevBobot] + sorted[i]->nilai;
 
 			if(new > max) {
 				max = new;
@@ -79,16 +81,16 @@ int main(){
 		MAX[maxBobot++] = max;
 	}
 
-	for(int i = 0; i < (W + 1); ++i){
-		printf("%d: ", i);
-		for(int j = 0; j < N; ++j){
-			printf("%d ", TAKEN[i][j]);
-		}
-		printf("\n");
+	int maxIndex = W;
+	int max = MAX[maxIndex];
+	while(maxIndex > 0){
+		if(max == MAX[maxIndex - 1]) --maxIndex;
+		else break;
 	}
 
-
-
-	for(int i = 0; i < (W + 1); ++i)
-		printf("%d ", MAX[i]);
+	printf("MAX_VALUE %d\n", max);
+	for(int i = N - 1; i >= 0; --i){
+		if(!TAKEN[maxIndex][i]) continue;
+		printf("ITEM %s\n", sorted[i]->name);
+	}
 }
